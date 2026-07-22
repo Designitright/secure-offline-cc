@@ -1,0 +1,66 @@
+# Changelog — Secure Offline CC for WooCommerce
+
+All notable changes to this project are documented here.  
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).  
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [2.1.0] — 2026-07-22
+
+### Added
+- AES-256-GCM encrypted storage for all card data (card number, expiry, CVV, cardholder name)
+- Admin order meta box: Card Details panel on WooCommerce order edit screen
+- "View Card Details" button — AJAX-powered decrypt with 60-second auto-clear modal
+- "Purge Card Data" button — permanently deletes all encrypted card meta
+- Audit log database table (`socc_audit_log`) — logs every view and purge with user ID, username, IP address, and timestamp
+- Last 5 audit log entries displayed in the order meta box
+- Notification-only email — merchant receives zero card data in email; only a secure link to the admin order
+- `wp-config.php` key helper — generates a cryptographically secure 64-character hex key on the settings page
+- Auto-purge via WP Cron — configurable number of days before automatic card data deletion
+- WooCommerce HPOS (High Performance Order Storage) compatibility declaration
+- GCM authentication tag verification — failed auth tags are rejected and logged
+- `uninstall.php` — cleans up all plugin options and the audit log database table on deletion
+
+### Changed
+- Notification email now contains zero card data (was previously full card details)
+- Encryption switched from no encryption (v2.0.0) to AES-256-GCM
+- Plugin slug renamed to `secure-offline-cc` (generic, non-branded)
+- All text domain references updated to `secure-offline-cc`
+- All database/option prefixes updated to `socc_`
+
+### Removed
+- External `ccvs.php` card validation library (replaced with native PHP Luhn check)
+- License server / updater system (no more nag notices)
+- Full card data storage in order meta as plaintext
+
+### Security
+- Card data now encrypted at rest with AES-256-GCM before any database write
+- Encryption key stored in `wp-config.php` — never in the database
+- All AJAX endpoints require valid nonce + `manage_woocommerce` capability
+- Auto-clear on admin modal prevents card data lingering on screen
+
+---
+
+## [2.0.0] — 2026-07-15
+
+### Added
+- Complete rewrite for WordPress 7.0+ and WooCommerce 10.x+
+- PHP 8.0+ strict compatibility throughout
+- Native Luhn algorithm card number validation (no external library)
+- Card type auto-detection (Visa, MasterCard, Amex, Discover, JCB, Diners, Maestro)
+- HPOS compatibility declaration
+- Modern `wc_get_order()` usage
+- Proper `get_option()` / `update_meta_data()` WooCommerce patterns
+
+### Removed
+- External `ccvs.php` card validation library
+- License server / updater system
+- `WP_PLUGIN_URL` constant (deprecated) — replaced with `plugin_dir_url()`
+- Support for WC < 7.0 and PHP < 8.0
+
+---
+
+## [1.7.9] — Legacy (WP Lab)
+
+Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.4. No longer maintained.
