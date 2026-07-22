@@ -1,0 +1,39 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Build and Release ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build plugin ZIP
+        run: |
+          mkdir -p build/secure-offline-cc
+          rsync -r --exclude='.git' --exclude='.github' --exclude='build' --exclude='node_modules' --exclude='*.zip' . build/secure-offline-cc/
+          cd build
+          zip -r ../secure-offline-cc-v${{ steps.get_version.outputs.VERSION }}.zip secure-offline-cc/
+          echo "ZIP created."
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Secure Offline CC v${{ steps.get_version.outputs.VERSION }}
+          body_path: CHANGELOG.md
+          files: secure-offline-cc-v${{ steps.get_version.outputs.VERSION }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
