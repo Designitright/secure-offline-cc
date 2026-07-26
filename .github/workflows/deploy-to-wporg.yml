@@ -1,28 +1,14 @@
+# This plugin is distributed via GitHub releases only (not WordPress.org SVN).
+# This workflow is intentionally disabled to prevent failed action emails.
 name: Deploy to WordPress.org
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_dispatch:  # manual only — never fires on push/tag
 
 jobs:
-  deploy:
-    name: Deploy to WordPress.org SVN
+  skip:
+    name: WP.org deploy not configured
     runs-on: ubuntu-latest
-    if: github.repository == 'Designitright/secure-offline-cc'
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Extract version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: WordPress.org Plugin Deploy
-        uses: 10up/action-wordpress-plugin-deploy@stable
-        env:
-          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SLUG: secure-offline-cc
-          VERSION: ${{ steps.get_version.outputs.VERSION }}
+      - name: Skip
+        run: echo "WP.org SVN deploy is not configured for this plugin. Distributed via GitHub releases only."
