@@ -69,3 +69,8 @@ Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.
 ### Fixed
 - Renamed include files from `class-dir-cc-*.php` to `class-socc-*.php` to match main plugin require chain
 - Replaced broken/placeholder PNG icon with proper SVG credit card icons (Visa, MC, Discover, Amex)
+
+## [2.1.2] - 2026-07-26
+### Added
+- Integrated Plugin Update Checker (PUC v5) for automatic updates from GitHub releases
+- Plugin now checks GitHub repo for new versions and prompts update in WP Admin

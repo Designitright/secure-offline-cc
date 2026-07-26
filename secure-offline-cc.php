@@ -3,7 +3,7 @@
  * Plugin Name: Secure Offline CC for WooCommerce
  * Plugin URI: https://design-it-right.com
  * Description: A modernized WooCommerce payment gateway for processing credit cards offline with secure GCM encryption and audit logs.
- * Version: 2.1.1
+ * Version: 2.1.2
  * Author: Design It Right / Josh AI
  * Author URI: https://design-it-right.com
  * Requires at least: 6.0
@@ -20,9 +20,23 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define constants
-define( 'SOCC_VERSION', '2.1.1' );
+define( 'SOCC_VERSION', '2.1.2' );
 define( 'SOCC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SOCC_URL', plugin_dir_url( __FILE__ ) );
+// ── Auto-update via GitHub releases ───────────────────────────────────────────
+$socc_puc_file = plugin_dir_path( __FILE__ ) . 'plugin-update-checker/plugin-update-checker.php';
+if ( file_exists( $socc_puc_file ) ) {
+    require_once $socc_puc_file;
+    $soccUpdateChecker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+        'https://github.com/Designitright/secure-offline-cc/',
+        __FILE__,
+        'secure-offline-cc'
+    );
+    $soccUpdateChecker->setBranch( 'main' );
+    $soccUpdateChecker->getVcsApi()->enableReleaseAssets();
+}
+// ── End auto-update ───────────────────────────────────────────────────────────
+
 
 /**
  * Declare WooCommerce HPOS compatibility
