@@ -61,9 +61,10 @@ final class SOCC_Blocks extends AbstractPaymentMethodType {
 	 */
 	public function get_payment_method_data() {
 		return [
-			'title'       => $this->get_setting( 'title', __( 'Credit Card (Offline)', 'secure-offline-cc' ) ),
-			'description' => $this->get_setting( 'description', '' ),
-			'supports'    => $this->get_supported_features(),
+			'title'          => $this->get_setting( 'title', __( 'Credit Card (Offline)', 'secure-offline-cc' ) ),
+			'description'    => $this->get_setting( 'description', '' ),
+			'supports'       => $this->get_supported_features(),
+			'cardholderField' => 'yes' === $this->get_setting( 'cardholder_field', 'no' ),
 		];
 	}
 }
