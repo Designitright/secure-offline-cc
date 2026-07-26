@@ -348,6 +348,7 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 
 	/**
 	 * Send notification email to merchant.
+	 * Uses Resend HTTP API if SOCC_RESEND_API_KEY is defined, falls back to wp_mail.
 	 */
 	private function send_notification_email( $order ): void {
 		$to = ! empty( $this->email_address ) ? $this->email_address : get_option( 'admin_email' );
@@ -357,34 +358,59 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 
 		$order_number = $order->get_order_number();
 		$order_url    = $order->get_edit_order_url();
+		$subject      = sprintf( __( 'New Order %s — Card on File', 'secure-offline-cc' ), $order_number );
 
-		$subject = sprintf( __( 'New Order %s — Card on File', 'secure-offline-cc' ), $order_number );
+		$html_body = '<p style="font-family:sans-serif;font-size:15px;">' . sprintf(
+			/* translators: 1: order number, 2: order URL */
+			__( 'New order <strong>#%1$s</strong> received. Card on file. <a href="%2$s">View Order Details</a>', 'secure-offline-cc' ),
+			esc_html( $order_number ),
+			esc_url( $order_url )
+		) . '</p>';
 
-		$mailer = function_exists( 'WC' ) ? WC()->mailer() : null;
-		if ( $mailer ) {
-			$email_content = '<p>' . sprintf(
-				__( 'New order #%1$s received. Card on file. Log in to view: %2$s', 'secure-offline-cc' ),
-				'<strong>' . esc_html( $order_number ) . '</strong>',
-				'<a href="' . esc_url( $order_url ) . '">' . esc_html__( 'View Order Details', 'secure-offline-cc' ) . '</a>'
-			) . '</p>';
+		$emails = array_map( 'trim', explode( ',', $to ) );
 
-			$html    = $mailer->wrap_message( $subject, $email_content );
-			$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
-
-			$emails = array_map( 'trim', explode( ',', $to ) );
-			foreach ( $emails as $email ) {
-				wp_mail( $email, $subject, $html, $headers );
-			}
+		if ( defined( 'SOCC_RESEND_API_KEY' ) && SOCC_RESEND_API_KEY ) {
+			$this->send_via_resend( $emails, $subject, $html_body );
 		} else {
-			$plain_text = sprintf(
-				__( "New order #%1\$s received. Card on file. Log in to view: %2\$s", 'secure-offline-cc' ),
-				$order_number,
-				$order_url
-			);
-			$emails = array_map( 'trim', explode( ',', $to ) );
+			$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 			foreach ( $emails as $email ) {
-				wp_mail( $email, $subject, $plain_text );
+				wp_mail( $email, $subject, $html_body, $headers );
 			}
+		}
+	}
+
+	/**
+	 * Send email via Resend HTTP API (non-blocking, no SMTP overhead).
+	 *
+	 * @param array  $to      Recipient email addresses.
+	 * @param string $subject Email subject.
+	 * @param string $html    HTML body.
+	 */
+	private function send_via_resend( array $to, string $subject, string $html ): void {
+		$from_name    = get_bloginfo( 'name' );
+		$from_email   = defined( 'SOCC_RESEND_FROM' ) ? SOCC_RESEND_FROM : 'orders@' . wp_parse_url( home_url(), PHP_URL_HOST );
+
+		$payload = wp_json_encode( [
+			'from'    => $from_name . ' <' . $from_email . '>',
+			'to'      => $to,
+			'subject' => $subject,
+			'html'    => $html,
+		] );
+
+		$response = wp_remote_post(
+			'https://api.resend.com/emails',
+			[
+				'timeout' => 10,
+				'headers' => [
+					'Authorization' => 'Bearer ' . SOCC_RESEND_API_KEY,
+					'Content-Type'  => 'application/json',
+				],
+				'body' => $payload,
+			]
+		);
+
+		if ( is_wp_error( $response ) ) {
+			error_log( 'Secure Offline CC — Resend error: ' . $response->get_error_message() );
 		}
 	}
 
