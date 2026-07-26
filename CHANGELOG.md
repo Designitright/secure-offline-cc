@@ -81,3 +81,7 @@ Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.
 ### Added
 - SOCC_Blocks class and socc-blocks.js for block-based checkout registration
 - Gateway now renders correctly in WooCommerce block checkout
+
+## [2.1.4] - 2026-07-26
+### Changed
+- Internal version bump for PUC auto-update test

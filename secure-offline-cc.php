@@ -3,7 +3,7 @@
  * Plugin Name: Secure Offline CC for WooCommerce
  * Plugin URI: https://design-it-right.com
  * Description: A modernized WooCommerce payment gateway for processing credit cards offline with secure GCM encryption and audit logs.
- * Version: 2.1.3
+ * Version: 2.1.4
  * Author: Design It Right / Josh AI
  * Author URI: https://design-it-right.com
  * Requires at least: 6.0
@@ -20,7 +20,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define constants
-define( 'SOCC_VERSION', '2.1.3' );
+define( 'SOCC_VERSION', '2.1.4' );
 define( 'SOCC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SOCC_URL', plugin_dir_url( __FILE__ ) );
 // ── Auto-update via GitHub releases ───────────────────────────────────────────
