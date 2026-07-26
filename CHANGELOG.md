@@ -109,3 +109,12 @@ Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.
 - Defer notification email to background WP cron event instead of synchronous wp_mail()
 - Checkout now returns immediately — no more long spinner while SMTP connects
 - Added send_notification_email_cron() as scheduled event callback
+
+## [2.1.8] - 2026-07-26
+### Added
+- Resend HTTP API support for notification emails — faster, no SMTP overhead
+- Define SOCC_RESEND_API_KEY in wp-config.php to use Resend
+- Define SOCC_RESEND_FROM in wp-config.php to set the from address (optional, defaults to orders@yourdomain.com)
+- Falls back to wp_mail if SOCC_RESEND_API_KEY is not defined
+### Changed
+- Disabled WP.org SVN deploy workflow — plugin is GitHub-releases only
