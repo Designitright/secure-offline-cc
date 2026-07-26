@@ -103,3 +103,9 @@ Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.
 - Added cardholderField to get_payment_method_data() so JS knows whether to render name field
 ### Root Cause
 - v2.1.5 only fixed classic checkout payment_fields() — block checkout uses socc-blocks.js which only rendered RawHTML of description, no inputs at all
+
+## [2.1.7] - 2026-07-26
+### Fixed
+- Defer notification email to background WP cron event instead of synchronous wp_mail()
+- Checkout now returns immediately — no more long spinner while SMTP connects
+- Added send_notification_email_cron() as scheduled event callback
