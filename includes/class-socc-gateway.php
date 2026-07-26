@@ -56,6 +56,9 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 		add_action( 'woocommerce_email_before_order_table', [ $this, 'email_instructions' ], 10, 2 );
 		add_action( 'woocommerce_email_after_order_table', [ $this, 'email_admin_details' ], 10, 2 );
 		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
+
+		// Background cron for notification email — keeps checkout fast
+		add_action( 'socc_send_notification_email', [ $this, 'send_notification_email_cron' ], 10, 1 );
 	}
 
 	/**
@@ -312,7 +315,8 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 			];
 		}
 
-		$this->send_notification_email( $order );
+		// Defer notification email to background cron — don't block checkout
+		wp_schedule_single_event( time() + 1, 'socc_send_notification_email', [ $order_id ] );
 
 		$order->update_status(
 			$this->new_order_status,
@@ -329,6 +333,17 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 			'result'   => 'success',
 			'redirect' => $this->get_return_url( $order ),
 		];
+	}
+
+	/**
+	 * Cron callback — re-fetch order and send notification email in background.
+	 */
+	public function send_notification_email_cron( $order_id ): void {
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		$this->send_notification_email( $order );
 	}
 
 	/**
