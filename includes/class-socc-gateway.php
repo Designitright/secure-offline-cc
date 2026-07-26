@@ -32,6 +32,9 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 		$this->init_form_fields();
 		$this->init_settings();
 
+		// Enqueue checkout scripts
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_checkout_scripts' ] );
+
 		// Load settings values
 		$this->title            = $this->get_option( 'title', __( 'Credit Card', 'secure-offline-cc' ) );
 		$this->description      = $this->get_option( 'description', __( 'Pay securely with your credit card.', 'secure-offline-cc' ) );
@@ -166,19 +169,56 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 	/**
 	 * Render payment fields.
 	 */
-	public function payment_fields() {
+	/**
+	 * Enqueue checkout scripts for card input formatting.
+	 */
+	public function enqueue_checkout_scripts() {
+		if ( ! is_checkout() ) {
+			return;
+		}
+		wp_enqueue_script(
+			'socc-checkout',
+			SOCC_URL . 'assets/js/socc-checkout.js',
+			[ 'jquery' ],
+			SOCC_VERSION,
+			true
+		);
+	}
+
+		public function payment_fields() {
 		if ( $this->description ) {
 			echo '<p>' . esc_html( $this->description ) . '</p>';
 		}
 
-		$this->form();
+		echo '<fieldset id="socc-cc-form" class="wc-credit-card-form wc-payment-form" style="background:transparent;">';
+		do_action( 'woocommerce_credit_card_form_start', $this->id );
 
+		// Card Number
+		echo '<p class="form-row form-row-wide">
+			<label for="socc-card-number">' . esc_html__( 'Card Number', 'secure-offline-cc' ) . ' <span class="required">*</span></label>
+			<input id="socc-card-number" class="input-text wc-credit-card-form-card-number" type="tel" maxlength="20" autocomplete="cc-number" placeholder="&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;" name="socc-card-number" />
+		</p>';
+
+		// Expiry + CVC side by side
+		echo '<p class="form-row form-row-first">
+			<label for="socc-card-expiry">' . esc_html__( 'Expiry (MM/YY)', 'secure-offline-cc' ) . ' <span class="required">*</span></label>
+			<input id="socc-card-expiry" class="input-text wc-credit-card-form-card-expiry" type="tel" autocomplete="cc-exp" placeholder="MM / YY" name="socc-card-expiry" />
+		</p>
+		<p class="form-row form-row-last">
+			<label for="socc-card-cvc">' . esc_html__( 'Card Security Code', 'secure-offline-cc' ) . ' <span class="required">*</span></label>
+			<input id="socc-card-cvc" class="input-text wc-credit-card-form-card-cvc" type="tel" autocomplete="off" placeholder="CVV" name="socc-card-cvc" />
+		</p>';
+
+		// Optional cardholder name
 		if ( $this->cardholder_field ) {
 			echo '<p class="form-row form-row-wide">
 				<label for="socc_holder">' . esc_html__( 'Cardholder Name', 'secure-offline-cc' ) . ' <span class="required">*</span></label>
 				<input type="text" class="input-text" id="socc_holder" name="socc_holder" autocomplete="cc-name" placeholder="' . esc_attr__( 'Name on card', 'secure-offline-cc' ) . '" />
 			</p>';
 		}
+
+		do_action( 'woocommerce_credit_card_form_end', $this->id );
+		echo '<div class="clear"></div></fieldset>';
 	}
 
 	/**
