@@ -3,7 +3,7 @@
  * Plugin Name: Secure Offline CC for WooCommerce
  * Plugin URI: https://design-it-right.com
  * Description: A modernized WooCommerce payment gateway for processing credit cards offline with secure GCM encryption and audit logs.
- * Version: 2.1.2
+ * Version: 2.1.3
  * Author: Design It Right / Josh AI
  * Author URI: https://design-it-right.com
  * Requires at least: 6.0
@@ -20,7 +20,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define constants
-define( 'SOCC_VERSION', '2.1.2' );
+define( 'SOCC_VERSION', '2.1.3' );
 define( 'SOCC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SOCC_URL', plugin_dir_url( __FILE__ ) );
 // ── Auto-update via GitHub releases ───────────────────────────────────────────
@@ -45,7 +45,7 @@ add_action( 'before_woocommerce_init', 'socc_declare_hpos_compatibility' );
 function socc_declare_hpos_compatibility() {
 	if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
 	}
 }
 
@@ -81,6 +81,23 @@ function socc_register_gateway( $gateways ) {
 	$gateways[] = 'WC_Secure_Offline_CC';
 	return $gateways;
 }
+/**
+ * Register Blocks integration
+ */
+add_action( 'woocommerce_blocks_loaded', 'socc_register_blocks_integration' );
+function socc_register_blocks_integration() {
+	if ( ! class_exists( 'Automattic\\WooCommerce\\Blocks\\Payments\\Integrations\\AbstractPaymentMethodType' ) ) {
+		return;
+	}
+	require_once SOCC_PATH . 'includes/class-socc-blocks.php';
+	add_action(
+		'woocommerce_blocks_payment_method_type_registration',
+		function( $registry ) {
+			$registry->register( new SOCC_Blocks() );
+		}
+	);
+}
+
 
 /**
  * Activation Hook

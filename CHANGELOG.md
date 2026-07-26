@@ -74,3 +74,10 @@ Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.
 ### Added
 - Integrated Plugin Update Checker (PUC v5) for automatic updates from GitHub releases
 - Plugin now checks GitHub repo for new versions and prompts update in WP Admin
+
+## [2.1.3] - 2026-07-26
+### Fixed
+- Declared full WooCommerce block checkout compatibility (resolves admin notice)
+### Added
+- SOCC_Blocks class and socc-blocks.js for block-based checkout registration
+- Gateway now renders correctly in WooCommerce block checkout
