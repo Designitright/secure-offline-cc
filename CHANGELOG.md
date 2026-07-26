@@ -85,3 +85,21 @@ Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.
 ## [2.1.4] - 2026-07-26
 ### Changed
 - Internal version bump for PUC auto-update test
+
+## [2.1.5] - 2026-07-26
+### Fixed
+- Replaced `$this->form()` with explicit socc-prefixed card input fields
+- Field names now match validate_fields() and process_payment() expectations
+- Card number, expiry, CVC all render correctly at classic checkout
+### Added
+- socc-checkout.js: auto-formats card number (groups of 4), expiry (MM / YY), CVC
+- enqueue_checkout_scripts() method loads JS only on checkout page
+
+## [2.1.6] - 2026-07-26
+### Fixed
+- Block checkout: rewrote Content as real React component with useState/useEffect
+- Block checkout now renders controlled inputs for card number, expiry, CVC
+- Block checkout now wires onPaymentSetup to emit paymentMethodData with socc-card-number, socc-card-expiry, socc-card-cvc, socc_holder
+- Added cardholderField to get_payment_method_data() so JS knows whether to render name field
+### Root Cause
+- v2.1.5 only fixed classic checkout payment_fields() — block checkout uses socc-blocks.js which only rendered RawHTML of description, no inputs at all
