@@ -16,7 +16,7 @@ class WC_Secure_Offline_CC extends WC_Payment_Gateway_CC {
 		$this->method_title       = __( 'Offline Credit Card (DiR)', 'secure-offline-cc' );
 		$this->method_description = __( 'Accept credit card details at checkout and store them using AES-256-GCM. Card data is decrypted on-screen for manual processing and auto-purged securely.', 'secure-offline-cc' );
 		$this->has_fields         = true;
-		$this->icon               = SOCC_URL . 'assets/images/cards-visa-mc-discover-amex.png';
+		$this->icon               = SOCC_URL . 'assets/images/cards-visa-mc-discover-amex.svg';
 
 		$this->supports = [
 			'products',

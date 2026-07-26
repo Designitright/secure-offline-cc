@@ -64,3 +64,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [1.7.9] — Legacy (WP Lab)
 
 Original plugin by WP Lab. Last tested with WooCommerce 3.3.3 and WordPress 4.9.4. No longer maintained.
+
+## [2.1.1] - 2026-07-26
+### Fixed
+- Renamed include files from `class-dir-cc-*.php` to `class-socc-*.php` to match main plugin require chain
+- Replaced broken/placeholder PNG icon with proper SVG credit card icons (Visa, MC, Discover, Amex)
